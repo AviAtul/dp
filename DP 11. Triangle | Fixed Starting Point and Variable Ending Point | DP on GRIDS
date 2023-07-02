@@ -1,0 +1,84 @@
+Recursion:
+class Solution {
+private:
+    int count(int m, int n, vector<vector<int>>& triangle){
+        if(m==triangle.size()-1 && n==triangle[triangle.size()-1].size()-1)return triangle[m][n];
+        if(m>=triangle.size() || n>=triangle[triangle.size()-1].size())return 0;
+        int down = triangle[m][n]+count(m+1,n,triangle);
+        int diag = triangle[m][n]+count(m+1,n+1,triangle);
+        return min(down,diag);
+    }
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        return count(0,0,triangle);
+    }
+};
+Time Complexity: O(2^m*n)
+Space Complexity: O(m)
+
+Memoization:
+class Solution {
+private:
+    int count(int m, int n, vector<vector<int>>& triangle, vector<vector<int>>& dp){
+        if(m>=triangle.size() || n>=triangle[triangle.size()-1].size())return 0;
+        if(dp[m][n]!=-1)return dp[m][n];
+        if(m==triangle.size()-1 && n==triangle[triangle.size()-1].size()-1)return dp[m][n]= triangle[m][n];
+        int down = triangle[m][n]+count(m+1,n,triangle,dp);
+        int diag = triangle[m][n]+count(m+1,n+1,triangle,dp);
+        return dp[m][n]=min(down,diag);
+    }
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        vector<vector<int>>dp(triangle.size()+1,vector<int>(triangle[triangle.size()-1].size()+1,-1));
+        return count(0,0,triangle,dp);
+    }
+};
+Time Complexity: O(m*n)
+Space Complexity: O(m)+O(m*n)
+
+Tabulation:
+class Solution {
+private:
+    int count(vector<vector<int>>& triangle){
+        int r = triangle.size();
+        vector<vector<int> > dp(r,vector<int>(r,0));
+        for(int i = 0; i<r; i++)dp[r-1][i] = triangle[r-1][i];
+        for(int i = r-2; i>=0; i--){
+            for(int j = i; j>=0; j--){
+                int down = triangle[i][j]+dp[i+1][j];
+                int diag = triangle[i][j]+dp[i+1][j+1];
+                dp[i][j] = min(down,diag);
+            }
+        }return dp[0][0];
+    }
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        return count(triangle);
+    }
+};
+Time Complexity: O(m*n)
+Space Complexity: O(m*n)
+
+Space Optimization:
+class Solution {
+private:
+    int count(vector<vector<int>>& triangle){
+        int r = triangle.size();
+        vector<int> prev(r,0);
+        for(int i = 0; i<r; i++)prev[i] = triangle[r-1][i];
+        for(int i = r-2; i>=0; i--){
+            vector<int> curr(r,0);
+            for(int j = i; j>=0; j--){
+                int down = triangle[i][j]+prev[j];
+                int diag = triangle[i][j]+prev[j+1];
+                curr[j] = min(down,diag);
+            }prev = curr;
+        }return prev[0];
+    }
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        return count(triangle);
+    }
+};
+Time Complexity: O(m*n)
+Space Complexity: O(m)
