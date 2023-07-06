@@ -1,0 +1,30 @@
+class Solution {
+private:
+    bool isSum(vector<int>arr, int sum, int n, vector<bool>& prev){
+        if(n<0)return false;
+        vector<bool> curr(sum+1, false);
+        curr[0] = prev[0] = true;
+        if(arr[0]<=sum)prev[arr[0]] = true;
+        for(int i = 1; i<=n; i++){
+            for(int j = 1; j<=sum; j++){
+                curr[j] = prev[j] || (j-arr[i]>=0?prev[j-arr[i]]:false);
+            }prev = curr;
+        }return prev[sum];
+    }
+public:
+    int minimumDifference(vector<int>& nums) {
+        int ans = INT_MAX;
+        if(nums.size()==1)return false;
+        int sum = 0;
+        for(int i = 0; i<nums.size(); i++){
+            sum=sum+nums[i];
+        }vector<bool> prev(sum+1, false);
+        isSum(nums, sum, nums.size()-1, prev);
+        for(int i = 0; i<=sum/2; i++){
+            if(prev[i]){
+                int temp = abs(2*i - sum);
+                ans = min(ans, temp);
+            }
+        }return ans;
+    }
+};
