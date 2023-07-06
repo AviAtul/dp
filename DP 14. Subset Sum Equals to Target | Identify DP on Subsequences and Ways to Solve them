@@ -1,0 +1,85 @@
+Recursion:
+class Solution{   
+private:
+    bool isSum(vector<int>arr, int sum, int n){
+        if(sum<0 || n<0)return false;
+        if(sum==0)return true;
+        if(n==0)return(arr[0]==sum);
+        return (isSum(arr, sum-arr[n], n-1)||isSum(arr, sum, n-1));
+    }
+public:
+    bool isSubsetSum(vector<int>arr, int sum){
+        int n = arr.size();
+        return isSum(arr, sum, n-1);
+    }
+};
+Time Complexity: O(2^n)
+Space Complexity: O(n)
+
+Memoization:
+class Solution{   
+private:
+    bool isSum(vector<int>arr, int sum, int n, vector<vector<int>>& dp){
+        if(sum<0 || n<0)return false;
+        if(dp[n][sum]!=-1)return dp[n][sum];
+        if(sum==0)return dp[n][sum]= true;
+        if(n == 0)return arr[0]==sum;
+        return dp[n][sum]= (isSum(arr, sum, n-1, dp) || isSum(arr, sum-arr[n], n-1, dp));
+    }
+public:
+    bool isSubsetSum(vector<int>arr, int sum){
+        int n = arr.size();
+        vector<vector<int>> dp(n+1, vector<int>(sum+1, -1));
+        return isSum(arr, sum, n-1, dp);
+    }
+};
+Time COmplexity: O(n*sum)
+Space Complexity: O(n)+O(n+1*sum+1)
+
+Tabulation:
+class Solution{   
+private:
+    bool isSum(vector<int>arr, int sum, int n){
+        if(sum<0 || n<0)return false;
+        vector<vector<bool>> dp(n+1, vector<bool>(sum+1, false));
+        for(int i = 0; i<=n; i++){
+            dp[i][0] = true;
+        }dp[0][arr[0]] = true;
+        for(int i = 1; i<=n; i++){
+            for(int j = 1; j<=sum; j++){
+                dp[i][j] = dp[i-1][j] || (j-arr[i]>=0?dp[i-1][j-arr[i]]:false);
+            }
+        }return dp[n][sum];
+    }
+public:
+    bool isSubsetSum(vector<int>arr, int sum){
+        int n = arr.size();
+        return isSum(arr, sum, n-1);
+    }
+};
+Time COmplexity: O(n*sum)
+Space Complexity: O(n+1*sum+1)
+
+Space Optimization:
+class Solution{   
+private:
+    bool isSum(vector<int>arr, int sum, int n){
+        if(sum<0 || n<0)return false;
+        vector<bool> prev(sum+1, false);
+        vector<bool> curr(sum+1, false);
+        curr[0] = prev[0] = true;
+        prev[arr[0]] = true;
+        for(int i = 1; i<=n; i++){
+            for(int j = 1; j<=sum; j++){
+                curr[j] = prev[j] || (j-arr[i]>=0?prev[j-arr[i]]:false);
+            }prev = curr;
+        }return prev[sum];
+    }
+public:
+    bool isSubsetSum(vector<int>arr, int sum){
+        int n = arr.size();
+        return isSum(arr, sum, n-1);
+    }
+};
+Time COmplexity: O(n*sum)
+Space Complexity: O(sum+1)
