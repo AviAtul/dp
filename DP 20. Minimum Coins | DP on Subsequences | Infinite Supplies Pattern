@@ -1,0 +1,96 @@
+Reecursion:
+class Solution {
+private:
+    long long cnt(vector<int> coins, long long amount, long long n){
+        if(n<0 || amount<0)return (long long)INT_MAX+1;
+        if(n==0){
+            if(amount%coins[0]==0)return amount/coins[0];
+            else return (long long)INT_MAX+1;
+        }long long int pick = (long long)INT_MAX+1;
+        if(amount-coins[n]>=0)pick=1+cnt(coins, amount-coins[n], n);
+        return min(cnt(coins, amount, n-1), pick);
+    }
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        int n = coins.size();
+        long long ans =  cnt(coins, amount, n-1);
+        if(ans > INT_MAX)return -1;
+        else return (int)ans;
+    }
+};
+
+Memoization:
+class Solution {
+private:
+    long long cnt(vector<int> coins, long long amount, long long n, vector<vector<long long>>& dp){
+        if(n<0 || amount<0)return (long long)INT_MAX+1;
+        if(dp[n][amount]!=-1)return dp[n][amount];
+        if(n==0){
+            if(amount%coins[0]==0)return amount/coins[0];
+            else return (long long)INT_MAX+1;
+        }long long int pick = (long long)INT_MAX+1;
+        if(amount-coins[n]>=0)pick=1+cnt(coins, amount-coins[n], n, dp);
+        return dp[n][amount]= min(cnt(coins, amount, n-1, dp), pick);
+    }
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        int n = coins.size();
+        vector<vector<long long>> dp(n+1, vector<long long>(amount+1, -1));
+        long long ans =  cnt(coins, amount, n-1, dp);
+        if(ans > INT_MAX)return -1;
+        else return (int)ans;
+    }
+};
+
+Tabulation:
+class Solution {
+private:
+    long long cnt(vector<int> coins, long long amount, long long n){
+        if(n<0 || amount<0)return (long long)INT_MAX+1;
+        vector<vector<long long>> dp(n+1, vector<long long>(amount+1, (long long)INT_MAX+1));
+        for(int j = 0; j<=amount; j++){
+            if(j%coins[0]==0)dp[0][j] = j/coins[0];
+        }
+        for(int i = 1; i<=n; i++){
+            for(int j = 0; j<=amount; j++){
+                long long int pick = (long long)INT_MAX+1;
+                if(j-coins[i]>=0)pick=1+dp[i][j-coins[i]];
+                dp[i][j]= min(dp[i-1][j], pick);
+            }
+        }return dp[n][amount];
+    }
+public:
+    int coinChange(vector<int>& coins, int amount){
+        int n = coins.size();
+        long long ans =  cnt(coins, amount, n-1);
+        if(ans > INT_MAX)return -1;
+        else return (int)ans;
+    }
+};
+
+Space Optimization:
+class Solution {
+private:
+    long long cnt(vector<int> coins, long long amount, long long n){
+        if(n<0 || amount<0)return (long long)INT_MAX+1;
+        vector<long long> prev(amount+1, (long long)INT_MAX+1);
+        for(int j = 0; j<=amount; j++){
+            if(j%coins[0]==0)prev[j] = j/coins[0];
+        }
+        for(int i = 1; i<=n; i++){
+            vector<long long> curr(amount+1, (long long)INT_MAX+1);
+            for(int j = 0; j<=amount; j++){
+                long long int pick = (long long)INT_MAX+1;
+                if(j-coins[i]>=0)pick=1+curr[j-coins[i]];
+                curr[j]= min(prev[j], pick);
+            }prev = curr;
+        }return prev[amount];
+    }
+public:
+    int coinChange(vector<int>& coins, int amount){
+        int n = coins.size();
+        long long ans =  cnt(coins, amount, n-1);
+        if(ans > INT_MAX)return -1;
+        else return (int)ans;
+    }
+};
